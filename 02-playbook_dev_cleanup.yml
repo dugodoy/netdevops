@@ -1,0 +1,41 @@
+---
+- name: Cleaning Up CML DEV Network
+  hosts: localhost
+  gather_facts: False
+  vars:
+    cml_host: "10.10.20.161"
+    cml_user: "developer"
+    cml_pass: "C1sco12345"
+    cml_lab: "dev-network"
+    cml_file: "configs/cml_dev-network.yaml"
+
+  tasks:
+    - name: Stopping CML Dev Network
+      virl_lab:
+        host: "{{ cml_host }}"
+        user: "{{ cml_user }}"
+        password: "{{ cml_pass }}"
+        lab: "{{ cml_lab }}"
+        state: stopped
+
+    - pause:
+        seconds: 10
+
+    - name: Wiping CML Dev Network
+      virl_lab:
+        host: "{{ cml_host }}"
+        user: "{{ cml_user }}"
+        password: "{{ cml_pass }}"
+        lab: "{{ cml_lab }}"
+        state: wiped
+
+    - pause:
+        seconds: 10
+
+    - name: Removing CML Dev Network
+      virl_lab:
+        host: "{{ cml_host }}"
+        user: "{{ cml_user }}"
+        password: "{{ cml_pass }}"
+        lab: "{{ cml_lab }}"
+        state: absent

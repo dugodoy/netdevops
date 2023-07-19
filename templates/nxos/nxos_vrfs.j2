@@ -1,0 +1,10 @@
+{% for vrf in vrfs %}
+{% if vrf.name != 'default' %}
+vrf context {{ vrf.name }}
+{% if vrf.routes is defined %}
+{% for route in vrf.routes %}
+  ip route {{ route.network }} {{ route.next_hop }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endfor %}

@@ -1,0 +1,80 @@
+stages:
+  - deploy_to_dev
+  - dev_validation
+  - cleanup_dev
+  - deploy_to_prod
+  - prod_validation
+image: dugdy/netauto:latest
+
+deploy_to_dev:
+  stage: deploy_to_dev
+  script:
+    #- HOSTS=$(git show --pretty="" --name-only $CI_COMMIT_SHA | sed "s/^.*\///" | sed "s/\.[^.]*$//" | xargs | sed "s/ /,/g")
+    - HOSTS_DEV=$(git whatchanged --pretty="" --name-only $CI_COMMIT_SHA -1 | sed "s/^.*\///" | sed "s/\.[^.]*$//" | xargs | sed "s/ /,/g")
+    - HOSTS_DEV=$HOSTS_DEV,'localhost'
+    - echo $HOSTS_DEV
+    - awx --conf.host $AWX_HOST --conf.username $AWX_USER --conf.password $AWX_PASS -f human job_templates launch 'playbook_dev_deploy' --limit $HOSTS_DEV --monitor --filter status
+  rules:
+    - if: "$CI_COMMIT_BRANCH == 'dev-network' && $CI_PIPELINE_SOURCE == 'push'"
+      changes:
+        - host_vars/*.yml
+      allow_failure: false
+
+dev_validation:
+  stage: dev_validation
+  script:
+    - HOSTS_DEV=$(git whatchanged --pretty="" --name-only $CI_COMMIT_SHA -1 | sed "s/^.*\///" | sed "s/\.[^.]*$//" | xargs | sed "s/ /,/g")
+    - echo $HOSTS_DEV
+    - python validation/dev_validation.py $HOSTS_DEV
+  needs: ['deploy_to_dev']
+  rules:
+    - if: "$CI_COMMIT_BRANCH == 'dev-network' && $CI_PIPELINE_SOURCE == 'push'"
+      changes:
+        - host_vars/*.yml
+      allow_failure: false
+  artifacts:
+    paths:
+      - "*.html"
+
+cleanup_dev:
+  stage: cleanup_dev
+  script:
+    - awx --conf.host $AWX_HOST --conf.username $AWX_USER --conf.password $AWX_PASS -f human job_templates launch 'playbook_dev_cleanup' --limit localhost --monitor --filter status
+  needs: ['dev_validation']
+  rules:
+    - if: "$CI_COMMIT_BRANCH == 'dev-network' && $CI_PIPELINE_SOURCE == 'push'"
+      changes:
+        - host_vars/*.yml
+      allow_failure: false
+
+deploy_to_prod:
+  stage: deploy_to_prod
+  script:
+    - HOSTS_PRD=$(git whatchanged --pretty="" --name-only $CI_COMMIT_SHA -1 | sed "s/^.*\///" | sed "s/\.[^.]*$//" | xargs | sed "s/ /,/g")
+    - HOSTS_PRD=$HOSTS_PRD,'localhost'
+    - echo $HOSTS_PRD
+    - awx --conf.host $AWX_HOST --conf.username $AWX_USER --conf.password $AWX_PASS -f human job_templates launch 'playbook_prod_deploy' --limit $HOSTS_PRD --monitor --filter status
+  dependencies:
+    - deploy_to_dev
+  rules:
+    - if: "$CI_COMMIT_BRANCH == 'main' && $CI_PIPELINE_SOURCE == 'push'"
+      changes:
+        - host_vars/*.yml
+      allow_failure: false
+      when: manual
+
+prod_validation:
+  stage: prod_validation
+  script:
+    - HOSTS_PRD=$(git whatchanged --pretty="" --name-only $CI_COMMIT_SHA -1 | sed "s/^.*\///" | sed "s/\.[^.]*$//" | xargs | sed "s/ /,/g")
+    - echo $HOSTS_PRD
+    - python validation/prod_validation.py $HOSTS_PRD
+  needs: ['deploy_to_prod']
+  rules:
+    - if: "$CI_COMMIT_BRANCH == 'main' && $CI_PIPELINE_SOURCE == 'push'"
+      changes:
+        - host_vars/*.yml
+      allow_failure: false
+  artifacts:
+    paths:
+      - "*.txt"

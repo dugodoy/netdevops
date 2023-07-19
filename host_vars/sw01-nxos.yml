@@ -1,0 +1,156 @@
+---
+
+features:
+  - scp-server
+  - ospf
+  - interface-vlan
+  - hsrp
+  - lacp
+  - vpc
+
+vlans:
+  - vlan_id: 101
+    name: prod_svi
+  - vlan_id: 102
+    name: dev_svi
+  - vlan_id: 103
+    name: test_svi
+  - vlan_id: 104
+    name: security_svi
+  - vlan_id: 105
+    name: iot_svi
+  - vlan_id: 110
+    name: web_svi
+  - vlan_id: 111
+    name: app_svi
+  - vlan_id: 112
+    name: db_svi
+
+vpc_domain:
+  id: 101
+  ka_ip_src: 10.10.20.177
+  ka_ip_dst: 10.10.20.178
+  peer_gateway: True
+  peer_switch: True
+
+port_channels:
+  - name: port-channel1
+    description: VPC Peer Link
+    mode: trunk
+    vlans: 1-4094
+    vpc: peer-link
+    stp_type: network
+    state: no shutdown
+
+interfaces:
+  - name: Ethernet1/1
+    description: VPC Peer Link
+    state: no shutdown
+    mode: trunk
+    vlans: 1-4094
+    channel: 1
+  - name: Ethernet1/2
+    description: VPC Peer Link
+    state: no shutdown
+    mode: trunk
+    vlans: 1-4094
+    channel: 1
+
+interface_mgmt0:
+  description: management
+  vrf: management
+  ip: 10.10.20.177/24
+
+interface_vlans:
+  - vlan_id: 101
+    description: prod_svi
+    ip: 172.16.101.2/24
+    hsrp_group: 101
+    virtual_ip: 172.16.101.1
+    ospf_pid: 1
+    ospf_area: 0.0.0.0
+    ospf_passive: True
+    state: no shutdown
+  - vlan_id: 102
+    description: dev_svi
+    ip: 172.16.102.2/24
+    hsrp_group: 102
+    virtual_ip: 172.16.102.1
+    ospf_pid: 1
+    ospf_area: 0.0.0.0
+    ospf_passive: True
+    state: no shutdown
+  - vlan_id: 103
+    description: test_svi
+    ip: 172.16.103.2/24
+    hsrp_group: 103
+    virtual_ip: 172.16.103.1
+    ospf_pid: 1
+    ospf_area: 0.0.0.0
+    ospf_passive: True
+    state: no shutdown
+  - vlan_id: 104
+    description: security_svi
+    ip: 172.16.104.2/24
+    hsrp_group: 104
+    virtual_ip: 172.16.104.1
+    ospf_pid: 1
+    ospf_area: 0.0.0.0
+    ospf_passive: True
+    state: no shutdown
+  - vlan_id: 105
+    description: iot_svi
+    ip: 172.16.105.2/24
+    hsrp_group: 105
+    virtual_ip: 172.16.105.1
+    ospf_pid: 1
+    ospf_area: 0.0.0.0
+    ospf_passive: True
+    state: no shutdown
+  - vlan_id: 110
+    description: web_svi
+    vrf: netdevops
+    ip: 172.16.110.2/24
+    hsrp_group: 110
+    virtual_ip: 172.16.110.1
+    ospf_pid: 1
+    ospf_area: 0.0.0.0
+    ospf_passive: True
+    state: no shutdown
+  - vlan_id: 111
+    description: app_svi
+    vrf: netdevops
+    ip: 172.16.111.2/24
+    hsrp_group: 111
+    virtual_ip: 172.16.111.1
+    ospf_pid: 1
+    ospf_area: 0.0.0.0
+    ospf_passive: True
+    state: no shutdown
+  - vlan_id: 112
+    description: db_svi
+    vrf: netdevops
+    ip: 172.16.112.2/24
+    hsrp_group: 112
+    virtual_ip: 172.16.112.1
+    ospf_pid: 1
+    ospf_area: 0.0.0.0
+    ospf_passive: True
+    state: no shutdown
+
+vrfs:
+  - name: management
+    routes:
+    - network: 0.0.0.0/0
+      next_hop: 10.10.20.254
+  - name: netdevops
+
+loopbacks:
+  - name: loopback0
+    description: router-id
+    ip: 1.1.1.1/32
+    state: no shutdown
+
+ospf:
+  process: 1
+  router_id: 1.1.1.1

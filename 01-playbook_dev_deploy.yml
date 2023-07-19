@@ -1,0 +1,109 @@
+---
+- name: Ensure Configs directory is Created
+  connection: local
+  hosts: localhost
+  gather_facts: False
+  tasks:
+    - file:
+        path: "{{ playbook_dir }}/configs/"
+        state: directory
+
+- name: Building DEV Network
+  connection: local
+  hosts: all
+  gather_facts: False
+  vars:
+    cml_file: "configs/cml_dev-network.yaml"
+
+  tasks:
+    - name: Generating NXOS Configuration Files
+      template:
+        src="{{ playbook_dir }}/templates/nxos/nxos_main.j2"
+        dest="{{ playbook_dir }}/configs/{{ inventory_hostname }}.cfg"
+      when: ansible_network_os == 'nxos'
+
+    - name: Generating IOS Configuration Files
+      template:
+        src="{{ playbook_dir }}/templates/ios/ios_main.j2"
+        dest="{{ playbook_dir }}/configs/{{ inventory_hostname }}.cfg"
+      when: ansible_network_os == 'ios'
+
+    - name: Generating CML Topology File
+      template:
+        src="{{ playbook_dir }}/templates/cml/cml_base_lab.j2"
+        dest="{{ cml_file }}"
+      delegate_to: localhost
+
+- name: Preparing CML DEV Network
+  hosts: localhost
+  gather_facts: False
+  vars:
+#    cml_host: "10.10.20.161"
+#    cml_user: "developer"
+#    cml_pass: "C1sco12345"
+    cml_lab: "dev-network"
+    cml_file: "configs/cml_dev-network.yaml"
+
+  tasks:
+    - name: Importing Dev Network Topology file to CML
+      virl_lab:
+#        host: "{{ cml_host }}"
+#        user: "{{ cml_user }}"
+#        password: "{{ cml_pass }}"
+        host: "{{ hostvars['cml_host'].ansible_host }}"
+        user: "{{ hostvars['cml_host'].ansible_user }}"
+        password: "{{ hostvars['cml_host'].ansible_password }}"
+        lab: "{{ cml_lab }}"
+        state: present
+        file: "{{ cml_file }}"
+      register: results
+      no_log: False
+
+- name: Bringing Up CML DEV Network
+  connection: local
+  hosts: all
+  gather_facts: False
+  vars:
+    cml_host: "10.10.20.161"
+    cml_user: "developer"
+    cml_pass: "C1sco12345"
+    cml_lab: "dev-network"
+
+  tasks:
+    - name: Starting DEV Network Devices
+      virl_node:
+        name: "{{ inventory_hostname }}"
+#        host: "{{ cml_host }}"
+#        user: "{{ cml_user }}"
+#        password: "{{ cml_pass }}"
+        host: "{{ hostvars['cml_host'].ansible_host }}"
+        user: "{{ hostvars['cml_host'].ansible_user }}"
+        password: "{{ hostvars['cml_host'].ansible_password }}"
+        lab: "{{ cml_lab }}"
+        state: started
+        image_definition: ""
+        config: ""
+      register: result_start
+      delegate_to: localhost
+      no_log: True
+
+    - name: Waiting DEV Network Devices to Start
+      wait_for:
+        timeout: 5
+
+    - name: Waiting until Devices are ready
+      virl_lab_facts:
+#        host: "{{ cml_host }}"
+#        user: "{{ cml_user }}"
+#        password: "{{ cml_pass }}"
+        host: "{{ hostvars['cml_host'].ansible_host }}"
+        user: "{{ hostvars['cml_host'].ansible_user }}"
+        password: "{{ hostvars['cml_host'].ansible_password }}"
+        lab: "{{ cml_lab }}"
+      register: result
+      until: result.virl_facts.nodes[item].state == "BOOTED"
+      loop: "{{ ansible_play_hosts }}"
+      retries: 60
+      delay: 10
+      delegate_to: localhost
+      no_log: True

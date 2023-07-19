@@ -1,0 +1,40 @@
+{% for interface in interfaces %}
+interface {{ interface.name}}
+  description {{ interface.description }}
+{% if interface.channel is defined %}
+{% if interface.mode == 'routed' %}
+  no switchport
+  ip address {{ interface.ip }}
+{% elif interface.mode == 'access' %}
+  switchport
+  switchport access vlan {{ interface.vlans }}
+{% elif interface.mode == 'trunk' %}
+  switchport
+{% endif %}
+  channel-group {{ interface.channel }} force mode active
+{% else %}
+{% if interface.mode == 'routed' %}
+  no switchport
+  ip address {{ interface.ip }}
+{% if 'ospf_pid' in interface.keys() %}
+{% if interface.ospf_passive == False %}
+  no ip ospf passive-interface
+  ip router ospf {{ interface.ospf_pid }} area {{ interface.ospf_area }}
+{% elif interface.ospf_passive == True %}
+  ip router ospf {{ interface.ospf_pid }} area {{ interface.ospf_area }}
+{% endif %}
+{% endif %}
+{% elif interface.mode == 'access' %}
+  switchport
+  switchport mode access
+  switchport access vlan {{ interface.vlans }}
+  switchport trunk allowed vlan 1-4094
+{% elif interface.mode == 'trunk' %}
+  switchport
+  switchport mode trunk
+  switchport trunk allowed vlan {{ interface.vlans }}
+{% endif %}
+{% endif %}
+  {{ interface.state }}
+
+{% endfor %}

@@ -1,0 +1,274 @@
+!Command: Checkpoint cmd vdc 1
+!Time: Sat Sep 18 14:01:19 2021
+
+version 9.2(4) Bios:version
+hostname {{ inventory_hostname }}
+class-map type network-qos c-nq1
+  description Default class on qos-group 1
+  match qos-group 1
+class-map type network-qos c-nq2
+  description Default class on qos-group 2
+  match qos-group 2
+class-map type network-qos c-nq3
+  description Default class on qos-group 3
+  match qos-group 3
+class-map type network-qos c-8q-nq1
+  description Default class on qos-group 1
+  match qos-group 1
+class-map type network-qos c-8q-nq2
+  description Default class on qos-group 2
+  match qos-group 2
+class-map type network-qos c-8q-nq3
+  description Default class on qos-group 3
+  match qos-group 3
+class-map type network-qos c-8q-nq4
+  description Default class on qos-group 4
+  match qos-group 4
+class-map type network-qos c-8q-nq5
+  description Default class on qos-group 5
+  match qos-group 5
+class-map type network-qos c-8q-nq6
+  description Default class on qos-group 6
+  match qos-group 6
+class-map type network-qos c-8q-nq7
+  description Default class on qos-group 7
+  match qos-group 7
+class-map type network-qos c-nq-default
+  description Default class on qos-group 0
+  match qos-group 0
+class-map type network-qos c-8q-nq-default
+  description Default class on qos-group 0
+  match qos-group 0
+policy-map type network-qos default-nq-policy
+  class type network-qos c-nq3
+    mtu 1500
+  class type network-qos c-nq2
+    mtu 1500
+  class type network-qos c-nq1
+    mtu 1500
+  class type network-qos c-nq-default
+    mtu 1500
+policy-map type network-qos default-8q-nq-policy
+  class type network-qos c-8q-nq7
+    mtu 1500
+  class type network-qos c-8q-nq6
+    mtu 1500
+  class type network-qos c-8q-nq5
+    mtu 1500
+  class type network-qos c-8q-nq4
+    mtu 1500
+  class type network-qos c-8q-nq3
+    mtu 1500
+  class type network-qos c-8q-nq2
+    mtu 1500
+  class type network-qos c-8q-nq1
+    mtu 1500
+  class type network-qos c-8q-nq-default
+    mtu 1500
+vdc {{ inventory_hostname }} id 1
+  limit-resource vlan minimum 16 maximum 4094
+  limit-resource vrf minimum 2 maximum 4096
+  limit-resource port-channel minimum 0 maximum 511
+  limit-resource u4route-mem minimum 96 maximum 96
+  limit-resource u6route-mem minimum 24 maximum 24
+  limit-resource m4route-mem minimum 58 maximum 58
+  limit-resource m6route-mem minimum 8 maximum 8
+
+feature ssh
+ssh key rsa 1024
+cfs eth distribute
+{% for feature in features %}
+feature {{ feature }}
+{% endfor %}
+
+role name priv-15
+  description This is a system defined privilege role.
+  rule 1 permit read-write
+role name priv-14
+  description This is a system defined privilege role.
+  rule 1 permit read-write
+role name priv-13
+  description This is a system defined privilege role.
+role name priv-12
+  description This is a system defined privilege role.
+role name priv-11
+  description This is a system defined privilege role.
+role name priv-10
+  description This is a system defined privilege role.
+role name priv-9
+  description This is a system defined privilege role.
+role name priv-8
+  description This is a system defined privilege role.
+role name priv-7
+  description This is a system defined privilege role.
+role name priv-6
+  description This is a system defined privilege role.
+role name priv-5
+  description This is a system defined privilege role.
+role name priv-4
+  description This is a system defined privilege role.
+role name priv-3
+  description This is a system defined privilege role.
+role name priv-2
+  description This is a system defined privilege role.
+role name priv-1
+  description This is a system defined privilege role.
+role name priv-0
+  description This is a system defined privilege role.
+  rule 10 permit command traceroute6 *
+  rule 9 permit command traceroute *
+  rule 8 permit command telnet6 *
+  rule 7 permit command telnet *
+  rule 6 permit command ping6 *
+  rule 5 permit command ping *
+  rule 4 permit command ssh6 *
+  rule 3 permit command ssh *
+  rule 2 permit command enable *
+  rule 1 permit read
+no password strength-check
+username admin password 5 $1$KuOSBsvW$Cy0TSD..gEBGBPjzpDgf51  role network-admin
+username cisco password 5 $1$Nk7ZkwH0$fyiRmMMfIheqE3BqvcL0C1  role network-operator
+username cisco role network-admin
+username cisco passphrase  lifetime 99999 warntime 14 gracetime 3
+ip domain-lookup
+   qos statistics
+   class-map type queuing match-any c-out-q3
+     match qos-group 3
+   class-map type queuing match-any c-out-q2
+     match qos-group 2
+   class-map type queuing match-any c-out-q1
+     match qos-group 1
+   class-map type queuing match-any c-out-q-default
+     match qos-group 0
+   class-map type queuing match-any c-out-8q-q7
+     match qos-group 7
+   class-map type queuing match-any c-out-8q-q6
+     match qos-group 6
+   class-map type queuing match-any c-out-8q-q5
+     match qos-group 5
+   class-map type queuing match-any c-out-8q-q4
+     match qos-group 4
+   class-map type queuing match-any c-out-8q-q3
+     match qos-group 3
+   class-map type queuing match-any c-out-8q-q2
+     match qos-group 2
+   class-map type queuing match-any c-out-8q-q1
+     match qos-group 1
+   class-map type queuing match-any c-out-8q-q-default
+     match qos-group 0
+   class-map type queuing match-any c-in-q7
+     match qos-group 7
+   class-map type queuing match-any c-in-q6
+     match qos-group 6
+   class-map type queuing match-any c-in-q5
+     match qos-group 5
+   class-map type queuing match-any c-in-q4
+     match qos-group 4
+   class-map type queuing match-any c-in-q3
+     match qos-group 3
+   class-map type queuing match-any c-in-q2
+     match qos-group 2
+   class-map type queuing match-any c-in-q1
+     match qos-group 1
+   class-map type queuing match-any c-in-q-default
+     match qos-group 0
+policy-map type queuing default-out-policy
+  class type queuing c-out-q3
+    priority level 1
+  class type queuing c-out-q2
+    bandwidth remaining percent 0
+  class type queuing c-out-q1
+    bandwidth remaining percent 0
+  class type queuing c-out-q-default
+    bandwidth remaining percent 100
+policy-map type queuing default-8q-out-policy
+  class type queuing c-out-8q-q7
+    priority level 1
+  class type queuing c-out-8q-q6
+    bandwidth remaining percent 0
+  class type queuing c-out-8q-q5
+    bandwidth remaining percent 0
+  class type queuing c-out-8q-q4
+    bandwidth remaining percent 0
+  class type queuing c-out-8q-q3
+    bandwidth remaining percent 0
+  class type queuing c-out-8q-q2
+    bandwidth remaining percent 0
+  class type queuing c-out-8q-q1
+    bandwidth remaining percent 0
+  class type queuing c-out-8q-q-default
+    bandwidth remaining percent 100
+no system mode maintenance
+snmp-server user admin network-admin auth md5 0x328945d53e05e8e7207f8c20b142f0b7 priv 0x328945d53e05e8e7207f8c20b142f0b7 localizedkey
+snmp-server user cisco network-operator auth md5 0x55b3c64a53fb95518e75358ee75e82e9 priv 0x55b3c64a53fb95518e75358ee75e82e9 localizedkey
+snmp-server user cisco network-admin
+rmon event 1 log trap public description FATAL(1) owner PMON@FATAL
+rmon event 2 log trap public description CRITICAL(2) owner PMON@CRITICAL
+rmon event 3 log trap public description ERROR(3) owner PMON@ERROR
+rmon event 4 log trap public description WARNING(4) owner PMON@WARNING
+rmon event 5 log trap public description INFORMATION(5) owner PMON@INFO 
+callhome
+    destination-profile CiscoTAC-1 message-level 0
+    destination-profile CiscoTAC-1 message-size 5000000
+    destination-profile full_txt message-level 0
+    destination-profile full_txt message-size 2500000
+    destination-profile short_txt message-level 0
+    destination-profile short_txt message-size 4000
+    periodic-inventory notification interval 7
+    periodic-inventory notification timeofday 08:00
+
+{% for vrf in vrfs %}
+{% if vrf.name == 'default' %}
+{% for route in vrf.routes %}
+ip route {{ route.network }} {{ route.next_hop }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+vlan 1
+{% for vlan in vlans %}
+vlan {{ vlan.vlan_id }}
+  name {{ vlan.name }}
+{% endfor %}
+
+{% include 'nxos_vrfs.j2' ignore missing %}
+hardware forwarding unicast trace
+{% include 'nxos_vpc-domain.j2' ignore missing %}
+
+
+interface Vlan1
+  no ip redirects
+  no ipv6 redirects
+
+{% include 'nxos_interface-vlans.j2' ignore missing %}
+{% include 'nxos_port-channels.j2' ignore missing %}
+{% include 'nxos_interfaces.j2' ignore missing %}
+interface mgmt0
+  description {{ interface_mgmt0.description }}
+  duplex full
+  vrf member {{ interface_mgmt0.vrf }}
+  ip address {{ interface_mgmt0.ip }}
+
+{% include 'nxos_loopbacks.j2' ignore missing %}
+line console
+  exec-timeout 0
+  terminal width  511
+line vty
+boot nxos bootflash:/nxos.9.2.4.bin
+{% if ospf is defined %}
+{% include 'nxos_ospf.j2' %}
+{% endif %}
+
+{% if bgp is defined %}
+{% include 'nxos_bgp.j2' %}
+{% endif %}
+event manager applet BOOTCONFIG
+  event syslog pattern "mgmt0 is UP"
+  action 2.0 cli python bootflash:set_boot.py
+xml server timeout 1200
+
+no priority-flow-control override-interface mode off
+
+logging logfile messages 5 size 4194304
+logging monitor
+logging module
+no logging console

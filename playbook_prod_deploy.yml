@@ -1,0 +1,34 @@
+---
+- name: Ensure Configs directory is Created
+  connection: local
+  hosts: localhost
+  gather_facts: False
+  tasks:
+    - file:
+        path: "{{ playbook_dir }}/configs/"
+        state: directory
+
+- name: Generate Config and Apply to Devices
+  connection: local
+  hosts: all
+  gather_facts: False
+  vars:
+    opt_args: {
+               'global_delay_factor':3
+               }
+
+  tasks:
+    - name: Generating NXOS Configuration Files
+      template:
+        src="{{ playbook_dir }}/templates/nxos/nxos_main.j2"
+        dest="{{ playbook_dir }}/configs/{{ inventory_hostname }}.cfg"
+      when: ansible_network_os == 'nxos'
+
+    - name: Applying Config to Devices
+      napalm.napalm.napalm_install_config:
+        optional_args: "{{ opt_args }}"
+        dev_os: "nxos_ssh"
+        config_file: "configs/{{ inventory_hostname }}.cfg"
+        commit_changes: True
+        replace_config: True
+      when: ansible_network_os == 'nxos'

@@ -1,0 +1,34 @@
+{% for port_channel in port_channels %}
+interface {{ port_channel.name }}
+  description {{ port_channel.description }}
+{% if port_channel.mode == 'routed' %}
+  no switchport
+  ip address {{ port_channel.ip }}
+{% if 'ospf_pid' in port_channel.keys() %}
+{% if port_channel.ospf_passive == False %}
+  ip router ospf {{ port_channel.ospf_pid }} area {{ port_channel.ospf_area }}
+{% elif port_channel.ospf_passive == True %}
+  no ip ospf passive-interface
+  ip router ospf {{ port_channel.ospf_pid }} area {{ port_channel.ospf_area }}
+{% endif %}
+{% endif %}
+{% elif port_channel.mode == 'access' %}
+  switchport mode access
+  switchport access vlan {{ port_channel.vlans }}
+  switchport trunk allowed vlan 1-4094
+{% elif port_channel.mode == 'trunk' %}
+  switchport
+  switchport mode trunk
+{% if 'vlans' in port_channel.keys() %}
+  switchport trunk allowed vlan {{ port_channel.vlans }}
+{% endif %}
+{% if 'stp_type' in port_channel.keys() %}
+  spanning-tree port type {{ port_channel.stp_type }}
+{% endif %}
+{% if 'vpc' in port_channel.keys() %}
+  vpc {{ port_channel.vpc }}
+{% endif %}
+  {{ port_channel.state }}
+{% endif %}
+
+{% endfor %}

@@ -1,0 +1,8 @@
+vpc domain {{ vpc_domain.id }}
+{% if vpc_domain.peer_switch == True %}
+  peer-switch
+{% endif %}
+  peer-keepalive destination {{ vpc_domain.ka_ip_dst }} source {{ vpc_domain.ka_ip_src }}
+{% if vpc_domain.peer_gateway == True %}
+  peer-gateway
+{% endif %}

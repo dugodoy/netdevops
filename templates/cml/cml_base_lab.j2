@@ -1,0 +1,54 @@
+lab:
+  description: ''
+  notes: ''
+  timestamp: 1630546721.2617035
+  title: dev-network
+  version: 0.0.4
+nodes:
+{% set node_id = namespace(value=0) %}
+{% set node_x = namespace(value=0) %}
+{% for device in vars['ansible_play_hosts_all'] %}
+{% if hostvars[device].ansible_network_os == 'nxos' %}
+  - id: n{{ node_id.value }}
+{% set node_id.value = node_id.value+1 %}
+    label: {{ device }}
+    node_definition: nxosv9000
+    x: {{ node_x.value }}
+{% set node_x.value = node_x.value + 100 %}
+    y: -250
+    image_definition: nxosv9000-9-2-4
+    ram: 8192
+    cpus: 4
+    interfaces:
+      - id: i0
+        slot: 0
+        label: mgmt0
+        type: physical
+    configuration: |-
+{% filter indent(width=6) %}
+      {% include 'configs/'+device+'.cfg' %}
+{% endfilter %}
+{% endif %}
+{% if hostvars[device].ansible_network_os == 'ios' %}
+  - id: n{{ node_id.value }}
+{% set node_id.value = node_id.value+1 %}
+    label: {{ device }}
+    node_definition: iosvl2
+    x: {{ node_x.value }}
+{% set node_x.value = node_x.value+100 %}
+    y: -250
+    interfaces:
+      - id: i0
+        slot: 0
+        label: GigabitEthernet0/0
+        type: physical
+
+    configuration: |-
+{% filter indent(width=6) %}
+      {% include 'configs/'+device+'.cfg' %}
+{% endfilter %}
+{% endif %}
+
+{% endfor %}
+
+links: []

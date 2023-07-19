@@ -1,0 +1,8 @@
+router ospf {{ ospf.process }}
+  router-id {{ ospf.router_id }}
+  passive-interface default
+{% for vrf in vrfs  %}
+{% if vrf.name != "default" and vrf.name != "management" %}
+  vrf {{ vrf.name }}
+{% endif %}
+{% endfor %}

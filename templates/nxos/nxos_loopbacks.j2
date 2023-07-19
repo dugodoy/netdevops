@@ -1,0 +1,7 @@
+{% for loopback in loopbacks %}
+interface {{ loopback.name }}
+  description {{ loopback.description }}
+  ip address {{ loopback.ip }}
+  {{ loopback.state }}
+  
+{% endfor %}

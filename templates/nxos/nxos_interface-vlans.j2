@@ -1,0 +1,25 @@
+{% for interface_vlan in interface_vlans %}
+interface Vlan{{ interface_vlan.vlan_id }}
+  description {{ interface_vlan.description }}
+  {{ interface_vlan.state }}
+  no ip redirects
+{% if 'vrf' in interface_vlan.keys() %}
+  vrf member {{ interface_vlan.vrf }}
+{% endif %}
+  ip address {{ interface_vlan.ip }}
+  no ipv6 redirects
+{% if 'ospf_pid' in interface_vlan.keys() %}
+{% if interface_vlan.ospf_passive == False %}
+  no ip ospf passive-interface
+  ip router ospf {{ interface_vlan.ospf_pid }} area {{ interface_vlan.ospf_area }}
+{% elif interface_vlan.ospf_passive == True %}
+  ip router ospf {{ interface_vlan.ospf_pid }} area {{ interface_vlan.ospf_area }}
+{% endif %}
+{% endif %}
+{% if 'hsrp_group' in interface_vlan.keys() %}
+  hsrp {{ interface_vlan.hsrp_group }}
+    ip {{ interface_vlan.virtual_ip }}
+    preempt
+{% endif %}
+
+{% endfor %}
