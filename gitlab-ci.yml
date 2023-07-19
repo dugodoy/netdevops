@@ -9,7 +9,6 @@ image: dugdy/netauto:latest
 deploy_to_dev:
   stage: deploy_to_dev
   script:
-    #- HOSTS=$(git show --pretty="" --name-only $CI_COMMIT_SHA | sed "s/^.*\///" | sed "s/\.[^.]*$//" | xargs | sed "s/ /,/g")
     - HOSTS_DEV=$(git whatchanged --pretty="" --name-only $CI_COMMIT_SHA -1 | sed "s/^.*\///" | sed "s/\.[^.]*$//" | xargs | sed "s/ /,/g")
     - HOSTS_DEV=$HOSTS_DEV,'localhost'
     - echo $HOSTS_DEV
