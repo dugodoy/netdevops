@@ -1,6 +1,6 @@
 # NetDevOps
 
-### Exemplo de caso uso para configuração de rede como código, utilizando as seguintes ferramentas:
+### Use case for network configuration as code using the following tools:
 
 - Gitlab (CI/CD)
 - Ansible AWX (Configuration Management)
