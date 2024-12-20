@@ -14,4 +14,4 @@ https://devnetsandbox.cisco.com/RM/Diagram/Index/45100600-b413-4471-b28e-b014eb8
 
 # Demo
 
-[go](https://youtu.be/zsQCerkV2hg){:target="_blank"}
+[Demo Video](https://youtu.be/zsQCerkV2hg)
