@@ -15,4 +15,4 @@ https://devnetsandbox.cisco.com/RM/Diagram/Index/45100600-b413-4471-b28e-b014eb8
 # Demo
 
 Video showing Demo running this case:
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=zsQCerkV2hg/></a>
+https://youtu.be/zsQCerkV2hg
