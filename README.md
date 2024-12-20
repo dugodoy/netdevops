@@ -16,4 +16,4 @@ https://devnetsandbox.cisco.com/RM/Diagram/Index/45100600-b413-4471-b28e-b014eb8
 
 Video showing Demo running this case:
 
-<a href="https://youtu.be/zsQCerkV2hg" target="_blank"></a>
+<a href="https://youtu.be/zsQCerkV2hg" target="_blank">Video</a>
